@@ -152,4 +152,16 @@ public class SequenceMatcher {
 		}
 		return stringBuilder.toString();
 	}
+
+	public static void main(String[] args) {
+		if (args.length != 2) {
+			throw new IllegalArgumentException("Must have two input strings");
+		}
+
+		if (args[0].length() == 0 || args[1].length() == 0) {
+			throw new IllegalArgumentException("Inputs must have elements");
+		}
+
+		System.out.println(new SequenceMatcher(args[0], args[1]).getOutput());
+	}
 }
