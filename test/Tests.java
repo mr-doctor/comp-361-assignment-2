@@ -1,65 +1,66 @@
-
-
 import org.junit.Test;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public class Tests {
+
+	enum TestType {
+		RANDOM,
+		REVERSE,
+		EXCLUSIVE,
+		IDENTICAL
+	}
 
 	private static final String[] GENE_POSSIBILITIES = {"G", "A", "C", "T"};
 
 	@Test
-	public void testInputs() {
-		for (int i = 0; i < 20; i++) {
-			System.out.println(testFullyRandom(10));
-		}
-
-		for (int i = 0; i < 20; i++) {
-			System.out.println(testRandomStrings(10));
-		}
-
-		for (int i = 0; i < 20; i++) {
-			System.out.println(testReverse(10));
-		}
+	public void displayInputs() {
+		System.out.println(testRandomStrings(20, 5));
+		System.out.println(testReverse(20, 5));
+		System.out.println(testExclusive(20, 5));
+		System.out.println(testIdentical(20));
 	}
 
 	@Test
 	public void performanceTests() {
-		long timeStart = System.currentTimeMillis();
-		/*for (int i = 0; i < 100; i++) {
-			testFullyRandom(10);
-		}
-		System.out.println((System.currentTimeMillis() - timeStart) / 100.0);
+		int iterations = 10;
 
-		timeStart = System.currentTimeMillis();
-		for (int i = 0; i < 10; i++) {
-			testRandomStrings(10);
-		}
-		System.out.println((System.currentTimeMillis() - timeStart) / 10.0);
-
-		timeStart = System.currentTimeMillis();
-		for (int i = 0; i < 100; i++) {
-			testReverse(10);
-		}
-		System.out.println((System.currentTimeMillis() - timeStart) / 100.0);*/
-
-		/*timeStart = System.currentTimeMillis();
-		for (int i = 0; i < 10; i++) {
-			testExclusive(7);
-		}
-		System.out.println((System.currentTimeMillis() - timeStart) / 10.0);*/
-
-		timeStart = System.currentTimeMillis();
-		for (int i = 0; i < 100; i++) {
-			String input = buildRandomString(10, true);
-			new SequenceMatcher(input, input).getOutput();
-		}
-		System.out.println((System.currentTimeMillis() - timeStart) / 100.0);
+		testPerformance(TestType.RANDOM, iterations);
+		testPerformance(TestType.REVERSE, iterations);
+		testPerformance(TestType.EXCLUSIVE, iterations);
+		testPerformance(TestType.IDENTICAL, iterations);
 	}
 
-	private String testExclusive(int upperSize) {
+	private void testPerformance(TestType type, int iterations) {
+		for (int sizes = 10; sizes <= 1000; sizes *= 10) {
+			long timeStart = System.currentTimeMillis();
+			for (int i = 0; i < iterations; i++) {
+				switch (type) {
+					case RANDOM:
+						testRandomStrings(sizes, 0);
+					case REVERSE:
+						testReverse(sizes, 0);
+					case EXCLUSIVE:
+						testExclusive(sizes, 0);
+					case IDENTICAL:
+						testIdentical(sizes);
+				}
+			}
+			System.out.println(type.toString().toLowerCase() + " at " + sizes + ":			" + (System.currentTimeMillis() - timeStart) / ((float) iterations));
+		}
+		System.out.println();
+	}
+
+	private String testIdentical(int sizes) {
+		String input = buildRandomString(sizes, 0);
+		return new SequenceMatcher(input, input).getOutput();
+	}
+
+	private String testExclusive(int size, int deviation) {
 		String inputX, inputY;
 
 		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < upperSize; i++) {
+		for (int i = 0; i < size + + ThreadLocalRandom.current().nextInt(-deviation, deviation + 1); i++) {
 			builder.append(GENE_POSSIBILITIES[(int) (Math.random() * 2)]);
 		}
 
@@ -67,7 +68,7 @@ public class Tests {
 
 		builder = new StringBuilder();
 
-		for (int i = 0; i < upperSize; i++) {
+		for (int i = 0; i < size + ThreadLocalRandom.current().nextInt(-deviation, deviation + 1); i++) {
 			builder.append(GENE_POSSIBILITIES[2 + (int) (Math.random() * 2)]);
 		}
 
@@ -77,32 +78,21 @@ public class Tests {
 
 	}
 
-	private String testReverse(int upperSize) {
-		String inputX = buildRandomString(upperSize, true);
+	private String testReverse(int size, int deviation) {
+		String inputX = buildRandomString(size, deviation);
 		String inputY = new StringBuilder(inputX).reverse().toString();
 		return new SequenceMatcher(inputX, inputY).getOutput();
 	}
 
-	private String testFullyRandom(int upperSize) {
-		return new SequenceMatcher(buildRandomString(upperSize, true), buildRandomString(upperSize, true)).getOutput();
+	private String testRandomStrings(int size, int deviation) {
+		return new SequenceMatcher(buildRandomString(size, deviation), buildRandomString(size, deviation)).getOutput();
 	}
 
-	private String testRandomStrings(int upperSize) {
-		return new SequenceMatcher(buildRandomString(upperSize, false), buildRandomString(upperSize, false)).getOutput();
-	}
-
-	private String buildRandomString(int upperBound, boolean randomLength) {
+	private String buildRandomString(int size, int deviation) {
 		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < ((randomLength) ? (int) (Math.random() * upperBound + 1) : upperBound); i++) {
+		for (int i = 0; i < size + ThreadLocalRandom.current().nextInt(-deviation, deviation + 1); i++) {
 			builder.append(GENE_POSSIBILITIES[(int) (Math.random() * 4)]);
 		}
 		return builder.toString();
-	}
-
-	@Test
-	public void test_02() {
-		SequenceMatcher s = new SequenceMatcher(buildRandomString(10, true), buildRandomString(10, true));
-		System.out.println(s);
-		System.out.println(s.getOutput());
 	}
 }
