@@ -1,8 +1,6 @@
 import java.util.*;
-import java.util.concurrent.PriorityBlockingQueue;
 
 public class Node {
-
 
 	private int distance = Integer.MAX_VALUE;
 	private final char xChar, yChar;

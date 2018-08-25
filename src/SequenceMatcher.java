@@ -9,7 +9,7 @@ public class SequenceMatcher {
 
 	public static final int GAP_COST = 1;
 	public static final int MISMATCH_COST = 2;
-	public static final int MATCH_COST = 0;
+	public static final int MATCH_COST = -1;
 
 	private String X2;
 	private String Y2;

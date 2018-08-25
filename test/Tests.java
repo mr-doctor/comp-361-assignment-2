@@ -24,23 +24,57 @@ public class Tests {
 	@Test
 	public void performanceTests() {
 		long timeStart = System.currentTimeMillis();
-		for (int i = 0; i < 100; i++) {
+		/*for (int i = 0; i < 100; i++) {
 			testFullyRandom(10);
 		}
-		System.out.println((System.currentTimeMillis() - timeStart) / 100);
+		System.out.println((System.currentTimeMillis() - timeStart) / 100.0);
 
 		timeStart = System.currentTimeMillis();
-		for (int i = 0; i < 1; i++) {
-			System.out.println("doing");
-			testRandomStrings(9);
+		for (int i = 0; i < 10; i++) {
+			testRandomStrings(10);
 		}
-		System.out.println((System.currentTimeMillis() - timeStart) / 100);
+		System.out.println((System.currentTimeMillis() - timeStart) / 10.0);
 
 		timeStart = System.currentTimeMillis();
 		for (int i = 0; i < 100; i++) {
 			testReverse(10);
 		}
-		System.out.println((System.currentTimeMillis() - timeStart) / 100);
+		System.out.println((System.currentTimeMillis() - timeStart) / 100.0);*/
+
+		/*timeStart = System.currentTimeMillis();
+		for (int i = 0; i < 10; i++) {
+			testExclusive(7);
+		}
+		System.out.println((System.currentTimeMillis() - timeStart) / 10.0);*/
+
+		timeStart = System.currentTimeMillis();
+		for (int i = 0; i < 100; i++) {
+			String input = buildRandomString(10, true);
+			new SequenceMatcher(input, input).getOutput();
+		}
+		System.out.println((System.currentTimeMillis() - timeStart) / 100.0);
+	}
+
+	private String testExclusive(int upperSize) {
+		String inputX, inputY;
+
+		StringBuilder builder = new StringBuilder();
+		for (int i = 0; i < upperSize; i++) {
+			builder.append(GENE_POSSIBILITIES[(int) (Math.random() * 2)]);
+		}
+
+		inputX = builder.toString();
+
+		builder = new StringBuilder();
+
+		for (int i = 0; i < upperSize; i++) {
+			builder.append(GENE_POSSIBILITIES[2 + (int) (Math.random() * 2)]);
+		}
+
+		inputY = builder.toString();
+
+		return new SequenceMatcher(inputX, inputY).getOutput();
+
 	}
 
 	private String testReverse(int upperSize) {
@@ -63,5 +97,12 @@ public class Tests {
 			builder.append(GENE_POSSIBILITIES[(int) (Math.random() * 4)]);
 		}
 		return builder.toString();
+	}
+
+	@Test
+	public void test_02() {
+		SequenceMatcher s = new SequenceMatcher(buildRandomString(10, true), buildRandomString(10, true));
+		System.out.println(s);
+		System.out.println(s.getOutput());
 	}
 }
