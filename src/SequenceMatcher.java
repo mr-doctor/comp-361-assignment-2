@@ -5,28 +5,17 @@ import java.util.Map;
 
 public class SequenceMatcher {
 
-	/*
-	alignStrings(X, Y) {
-		given a node map of size X.len + 1 * Y.len + 1
-		buildMap(X, Y)
-		path = []
-		cost = 0
-		path, cost = findPath()
-		X2, Y2 = createStrings(X, Y, path)
-		return X2, Y2, cost
-	}
-	 */
-
 	private Node[][] nodeMap;
 
 	public static final int GAP_COST = 1;
 	public static final int MISMATCH_COST = 2;
 	public static final int MATCH_COST = 0;
 
-	private String X2, Y2 = "";
-	private String X, Y = "";
+	private String X2;
+	private String Y2;
+	private String X, Y;
 
-	int cost;
+	private int cost;
 
 	public SequenceMatcher(String X, String Y) {
 		this.X = X;
@@ -69,10 +58,6 @@ public class SequenceMatcher {
 		}
 
 		createStrings(path);
-
-		System.out.println(X2);
-		System.out.println(Y2);
-		System.out.println(cost);
 	}
 
 	@Override
@@ -108,21 +93,18 @@ public class SequenceMatcher {
 			return;
 		}
 
-		if (getNode(curX, curY).getxChar() == getNode(curX, curY).getyChar()) {
+		if (getNode(curX, curY).getXChar() == getNode(curX, curY).getYChar()) {
 			getNode(oldX, oldY).setCost(curX, curY, MATCH_COST);
 		} else {
 			getNode(oldX, oldY).setCost(curX, curY, MISMATCH_COST);
 		}
 	}
-	
 
-
-
-	public Node getNode(int x, int y) {
+	private Node getNode(int x, int y) {
 		return nodeMap[x][y];
 	}
 
-	public List<Node> findPath() {
+	private List<Node> findPath() {
 		Node root = getNode(0, 0);
 
 		root.setDistance(0);
@@ -145,8 +127,9 @@ public class SequenceMatcher {
 			}
 			settled.add(current);
 		}
-
-		return getNode(nodeMap.length - 1, nodeMap[0].length - 1).getShortestPath();
+		List<Node> path = getNode(nodeMap.length - 1, nodeMap[0].length - 1).getShortestPath();
+		path.add(getNode(nodeMap.length - 1, nodeMap[0].length - 1));
+		return path;
 	}
 
 	private static void calculateMinimumDistance(Node evaluationNode,
@@ -173,28 +156,24 @@ public class SequenceMatcher {
 		return lowestDistanceNode;
 	}
 
-	public void createStrings(List<Node> path) {
+	private void createStrings(List<Node> path) {
 
 		StringBuilder X2Builder = new StringBuilder();
 		StringBuilder Y2Builder = new StringBuilder();
-		int count = 1;
-		X2Builder.append(X.charAt(0));
-		Y2Builder.append(Y.charAt(0));
 
 		for (int i = 1; i < path.size(); i++) {
-			if (path.get(i-1).getX() < path.get(i).getX() && path.get(i-1).getY() == path.get(i).getY()) {
+			if (path.get(i).getX() > path.get(i - 1).getX() && path.get(i).getY() == path.get(i - 1).getY()) {
 				Y2Builder.append("-");
-				continue;
+			} else {
+				Y2Builder.append(path.get(i).getYChar());
 			}
-			if (path.get(i-1).getX() == path.get(i).getX() && path.get(i-1).getY() < path.get(i).getY()) {
+			if (path.get(i).getY() > path.get(i - 1).getY() && path.get(i).getX() == path.get(i - 1).getX()) {
 				X2Builder.append("-");
-				continue;
+			} else {
+				X2Builder.append(path.get(i).getXChar());
 			}
-
-			X2Builder.append(X.charAt(count));
-			Y2Builder.append(Y.charAt(count));
-			count++;
 		}
+		
 		X2 = X2Builder.toString();
 		Y2 = Y2Builder.toString();
 
@@ -205,6 +184,14 @@ public class SequenceMatcher {
 		}
 	}
 
+	public String getX2() {
+		return X2;
+	}
+
+	public String getY2() {
+		return Y2;
+	}
+
 	private String rightPad(String str, int length) {
 		StringBuilder stringBuilder = new StringBuilder(str);
 		for (int i = 0; i < length; i++) {
@@ -213,8 +200,57 @@ public class SequenceMatcher {
 		return stringBuilder.toString();
 	}
 
+	public int getCost() {
+		return cost;
+	}
+
+	public String getMatchString() {
+		StringBuilder stringBuilder = new StringBuilder();
+
+		for (int i = 0; i < X2.length(); i++) {
+			if (X2.charAt(i) == Y2.charAt(i)) {
+				stringBuilder.append("+");
+			} else if (X2.charAt(i) == '-' || Y2.charAt(i) == '-') {
+				stringBuilder.append("*");
+			} else {
+				stringBuilder.append("-");
+			}
+		}
+
+		return stringBuilder.toString();
+	}
+
+	String getOutput() {
+
+		String display = "Sequence Matcher {" + "\n" +
+				indent(1) + "Input {" + "\n" +
+				indent(2) + "X: " + X + "\n" +
+				indent(2) + "Y: " + Y + "\n" +
+				indent(1) + "}" + "\n" +
+				indent(1) + "Output {" + "\n" +
+				indent(2) + "X Out: " + X2 + "\n" +
+				indent(2) + "Y Out: " + Y2 + "\n" +
+				indent(2) + "Matches:" + getMatchString() + "\n" +
+				indent(2) + "Total Cost: " + cost + "\n" +
+				indent(1) + "}" + "\n" +
+				"}\n";
+		return display;
+	}
+
+	/**
+	 * Returns as many tab characters as the parameter states
+	 * @param depth an integer of the number of tab characters
+	 */
+	private static String indent(int depth) {
+		StringBuilder stringBuilder = new StringBuilder();
+		for (int i = 0; i < depth; i++) {
+			stringBuilder.append("	");
+		}
+		return stringBuilder.toString();
+	}
+
 	public static void main(String[] args) {
-		SequenceMatcher s = new SequenceMatcher("GGTAC", "ATACA");
+		SequenceMatcher s = new SequenceMatcher("GGATACAG", "CCAGATAGAG");
 		System.out.println(s);
 	}
 }

@@ -19,11 +19,11 @@ public class Node {
 		this.children = new ArrayList<>();
 	}
 
-	public char getxChar() {
+	public char getXChar() {
 		return xChar;
 	}
 
-	public char getyChar() {
+	public char getYChar() {
 		return yChar;
 	}
 
@@ -48,6 +48,10 @@ public class Node {
 			}
 		}
 		return -1;
+	}
+
+	public int getCost(Node n) {
+		return childrenCost.get(n);
 	}
 
 	public void setCost(int curX, int curY, int i) {
